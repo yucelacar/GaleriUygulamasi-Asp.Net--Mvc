@@ -1,0 +1,176 @@
+﻿@{
+    ViewBag.Title = "Ana Sayfa";
+}
+@using GaleriUygulamasi.Models
+@section breadCrumbTitle{Galeri Yönetimi}
+
+
+<style>
+    .file-content {
+        max-height: 500px;
+        overflow: auto;
+    }
+
+
+
+    .form-control[disabled], fieldset[disabled] .form-control {
+        cursor: text;
+    }
+
+    .modal-body .img-responsive {
+        max-width: 545px;
+    }
+
+    textarea {
+        height: 150px !important;
+    }
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+
+    .modal-body {
+        padding: 0;
+    }
+
+    i {
+        margin-right: 3px;
+    }
+
+    .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<link href="~/Content/Settings/file-list.css" rel="stylesheet" />
+@{
+    GaleriEntities context = new GaleriEntities();
+    var List = (from d in context.Dosya
+                orderby d.KayitTarihi descending
+                select new
+                {
+                    d.Id,
+                    d.BoyutKisaltma,
+                    d.DosyaAdi,
+                    d.DosyaTipi,
+                    d.Ikon,
+                    d.Renk,
+                }).ToList();
+
+}
+<div class="container">
+    <div class="row">
+        @for (int i = 0; i < List.Count; i++)
+        {
+            <div class="col-lg-3 col-sm-6">
+                <div class="card hovercard">
+                    <div class="cardheader @List[i].Renk">
+                        <a href="#fileEditModal" onclick="funcGetFileDetail(@List[i].Id)" data-toggle="modal" class="btn btn-primary @List[i].Renk pull-right"><i class="fa fa-edit"></i></a>
+                    </div>
+                    <div class="avatar" style="color: #fff;">
+                        <i class="fa @List[i].Ikon @List[i].Renk card-circle-icon "></i>
+                    </div>
+                    <div class="info">
+                        <div class="file-name">@List[i].DosyaAdi</div>
+                    </div>
+                    <hr />
+                    <div class="bottom">
+                        <i class="fa fa-hdd-o pull-left"></i> @List[i].BoyutKisaltma
+                        <i class="fa @List[i].Ikon pull-right"></i>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+        <div id="fileEditModal" class="modal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="file-content">
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-area" style="padding-top:15px; padding-right:15px;">
+                                    <form role="form">
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="fa fa-file-text"></i><span id="orjinalAdi"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="fa fa-hdd-o"></i> <span id="dosyaBoyutu"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="fa fa-file"></i><span id="dosyaTipi"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Url Yolu :</label>
+                                            <input id="urlYolu" disabled class="form-control has-success" style="font-size:20px;" value="http://wwww.google.com.tr" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Başlık :</label>
+                                            <input id="dosyaBaslik" type="text" class="form-control" placeholder="başlık">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Açıklama :</label>
+                                            <textarea id="dosyaAciklama" class="form-control" type="textarea" placeholder="açıklama"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="pull-left">
+                            <a id="btnOnizle" target="_blank" class="btn btn-warning"><i class="fa fa-eye"></i> Önizle</a>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-close"></i> Kapat</button>
+                            <button type="button" class="btn btn-success" onclick="funcUpdateFile()"><i class="fa fa-check"></i> Kaydet</button>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+    </div>
+    <script>
+        var tempDosyaId = 0;
+        function funcGetFileDetail(e) {
+            tempDosyaId = e;
+            $.ajax({
+                url: "/home/GetFileDetailById?Id=" + e,
+                success: function (e) {
+                    $("#orjinalAdi").html(e.DosyaAdi);
+                    $("#dosyaBoyutu").html(e.BoyutKisaltma);
+                    $("#dosyaTipi").html(e.DosyaTipi);
+                    $("#urlYolu").val(e.UrlYolu);
+                    $("#dosyaBaslik").val(e.Baslik);
+                    $("#dosyaAciklama").val(e.Aciklama);
+                    $("#btnOnizle").attr("href", e.UrlYolu);
+                    if (e.DosyaTipi.indexOf("image") != -1) {
+                        $(".file-content").html('<img class="img-responsive" src=' + e.UrlYolu + '/>');
+                    } else if (e.DosyaTipi.indexOf("video") != -1 || e.DosyaTipi.indexOf("audio") != -1 || e.DosyaTipi.indexOf("pdf") != -1) {
+                        $(".file-content").html('<iframe src=' + e.UrlYolu + ' width="550" height="450"></iframe>')
+                    }
+                    else {
+                        $(".file-content").html('<i class="fa fa-file-o" style="  font-size: 400px;padding: 50px;"></i>')
+                    }
+                }
+            })
+        }
+        function funcUpdateFile() {
+            $.ajax({
+                url: "/home/UpdateFile",
+                data: { Id: tempDosyaId, Baslik: $("#dosyaBaslik").val(), Aciklama: $("#dosyaAciklama").val() },
+                success: function (e) {
+                    if (e == "E") {
+                        $("#fileEditModal").modal("hide");
+                    }
+                }
+            })
+        }
+    </script>

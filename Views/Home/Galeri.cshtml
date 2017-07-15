@@ -1,0 +1,193 @@
+﻿@model List<GaleriUygulamasi.Models.Dosya>
+@{
+    ViewBag.Title = "Galeri";
+}
+
+<h2>Galeri</h2>
+
+<style>
+    .file-content {
+        max-height: 500px;
+    }
+
+
+
+    .form-control[disabled], fieldset[disabled] .form-control {
+        cursor: text;
+    }
+
+    .modal-body .img-responsive {
+        max-width: 545px;
+    }
+
+    textarea {
+        height: 150px !important;
+    }
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+
+    .modal-body {
+        padding: 0;
+    }
+
+    i {
+        margin-right: 3px;
+    }
+
+    .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .imgBoyut {
+        width: 150px;
+    }
+</style>
+
+
+<div class="container">
+    <div class="row">
+
+        @foreach (var dosya in Model)
+        {
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <img src="@dosya.IkonResim" class="imgBoyut" />
+
+                    <div class="caption">
+                        <div>
+                            <h4>
+                                Dosya Adı:
+                                @if (dosya.DosyaAdi != null)
+                                {
+                                    @(dosya.DosyaAdi.Length > 10 ? dosya.DosyaAdi.Substring(0, 10) + "..." : dosya.DosyaAdi)
+                                }
+
+                            </h4>
+                        </div>
+                        <div>
+                            @* Alttaki butona basınca ilgili dosyaya ait modal görünecek. *@
+                            <a href="#fileEditModal" onclick="fonkAyrintiGoster(@dosya.ID)" data-toggle="modal" class="btn btn-primary pull-right"><i class="glyphicon glyphicon-wrench"></i></a>
+                        </div>
+                        <div>
+                            Açıklama : 
+                            @if (dosya.Aciklama != null)
+                            {
+                                @(dosya.Aciklama.Length > 20 ? dosya.Aciklama.Substring(0, 10) + "..." : dosya.Aciklama)
+                            }
+                        </div>
+                        <hr />
+                        <div class="bottom">
+
+                            @dosya.KisaBoyut
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+
+        <div id="fileEditModal" class="modal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="file-content">
+                                    <img id="DosyaResmi" style="width:400px" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-area" style="padding-top:15px; padding-right:15px;">
+                                    <form role="form">
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="glyphicon glyphicon-folder-open"></i><span id="orjinalAdi"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="glyphicon glyphicon-hdd"></i> <span id="dosyaBoyutu"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label"><i class="glyphicon glyphicon-tags"></i><span id="dosyaTipi"></span></label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Url Yolu :</label>
+                                            <input id="urlYolu" disabled class="form-control has-success" style="font-size:20px;" value="http://" www.google.com.tr" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Başlık :</label>
+                                            <input id="dosyaBaslik" type="text" class="form-control" placeholder="Başlık">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Açıklama :</label>
+                                            <textarea id="dosyaAciklama" class="form-control" type="textarea" placeholder="Açıklama"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="pull-left">
+                            <a id="btnOnizle" target="_blank" class="btn btn-warning"><i class="glyphicon glyphicon-eye-open"></i> Önizle</a>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="glyphicon glyphicon-remove"></i> Kapat</button>
+                            <button type="button" class="btn btn-success" onclick="fonkKaydet()"><i class="glyphicon glyphicon-ok"></i> Kaydet</button>
+                            <div id="ID" class="hidden"></div>
+                            <div id="Sonuc"></div>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function fonkAyrintiGoster(id)
+    {
+        $.ajax({
+            type:'POST',
+            url: "/Home/GetDosyaByID",
+            data:{"ID":id},
+            success: function(dosya)
+            {
+                $("#ID").html(dosya.ID);
+                $("#orjinalAdi").html(dosya.DosyaAdi);
+                $("#dosyaBoyutu").html(dosya.KisaBoyut);
+                $("#dosyaTipi").html(dosya.DosyaTipi);
+                $("#dosyaBaslik").html(dosya.Baslik);
+                $("#dosyaAciklama").html(dosya.Aciklama);
+                $("#DosyaResmi").attr("src", dosya.IkonResim);
+            }
+            
+        })
+
+    }
+
+    function fonkKaydet()
+    {
+        $.ajax({
+            type: 'POST',
+            url: "/Home/DegisiklikKaydet",
+            data: { "ID": $("#ID").text(), "Aciklama": $("#dosyaAciklama").val(), "Baslik": $("#dosyaBaslik").val() },
+            success:function(data)
+            {
+                $("#Sonuc").text("Kayıt Başarılı.");
+            },
+            error:function(e)
+            {
+                $("#Sonuc").text("Kayıt Başarısız.");
+            }
+
+
+        })
+    }
+
+</script>

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="GaleriModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Dosya">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Deger" Type="varbinary(max)" Nullable="false" />
+    <Property Name="DosyaAdi" Type="varchar(max)" Nullable="false" />
+    <Property Name="Baslik" Type="varchar" MaxLength="250" />
+    <Property Name="Aciklama" Type="varchar" MaxLength="1000" />
+    <Property Name="DosyaTipi" Type="varchar(max)" Nullable="false" />
+    <Property Name="DosyaBoyutu" Type="varchar" MaxLength="1000" Nullable="false" />
+    <Property Name="BoyutKisaltma" Type="varchar" MaxLength="50" />
+    <Property Name="Ikon" Type="varchar" MaxLength="50" />
+    <Property Name="Renk" Type="varchar" MaxLength="50" />
+    <Property Name="Resim" Type="varchar(max)" />
+    <Property Name="KayitTarihi" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityContainer Name="GaleriModelStoreContainer">
+    <EntitySet Name="Dosya" EntityType="Self.Dosya" Schema="dbo" store:Type="Tables" />
+  </EntityContainer>
+</Schema>

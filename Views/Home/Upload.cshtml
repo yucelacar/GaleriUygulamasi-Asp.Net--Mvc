@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "Dosya Yükleme";
+}
+<style>
+    .bar {
+        background-color: #0094ff;
+        height: 40px;
+    }
+
+    .file-part {
+        padding: 15px;
+        background-color: #fff;
+        box-shadow: 0 2px 2px rgba(0,0,0,.15);
+        padding: 5px 25px 15px 15px;
+        margin-bottom: 10px;
+    }
+
+    #fileList {
+        margin-top: 10px;
+    }
+
+    #fileupload {
+        display: inline-block;
+    }
+
+    .upload-content {
+        padding: 15px 25px 10px 15px;
+        background-color: #fff;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 2px rgba(0,0,0,.15);
+    }
+
+    .progress {
+        margin-bottom: 0;
+    }
+</style>
+
+<script src="~/Scripts/jquery-ui-1.9.2.js"></script>
+<script src="~/Scripts/jquery.fileupload.js"></script>
+<script src="~/Scripts/jquery.iframe-transport.js"></script>
+
+<div class="row upload-content">
+    <button id="btnUpload" class="btn btn-success">Dosyaları Yükle</button>
+    <button class="btn btn-primary" onclick="$('#fileupload').click()">Dosya Ekle</button> @*Öncelikle eklenecek dosyalar secilecek. opendialog kullanılarak dosyaların tek tek eklenmesi yapıldıktan sonra dosyaları yükle butonuna bastığımızda dosyalar yüklenecek.*@
+    <input type="file" id="fileupload" multiple="multiple" style="display:none" />
+    <div id="GenelYuzde" class="hidden">
+        <h5>Genel Yüzde</h5>
+        <em id="genelBoyut"></em>
+        <div class="progress" style="margin-bottom:5px;">
+            <div id="overBar" class="bar" style="width:0%;"><span id="tumYuklemeBilgi"></span></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div id="fileList" class="hidden">
+        <h3>Dosya Listesi</h3>
+        <hr />
+        @* Append edilecek alan... *@
+
+    </div>
+</div>
+
+<script>
+    var barIndex = 1;
+    $('#fileupload').fileupload({
+        dataType: "json",
+        url: "/Home/UploadData",
+        //Aynı anda sadece bir dosya yükleme limiti verdik.
+        limitConCurrentUploads: 1,
+        //Yüklenen dosyanın yükleme işlemi tamamlandığında otomatikman diğerini başlat.
+        sequentialUploads: true,
+        //Yükleme periyotu kaç milisaniye bir olacak.
+        progressInterval: 100,
+        //ilgili dosyayı 10000byte lık paketler halinde gönder.
+        maxChunkSize: 10000,
+
+        //her dosya ekleme işleminde tetiklenecek yer
+        add: function (e, data) {
+            barIndex = 1;
+            $('#fileList').removeClass('hidden').append('<div class="file-part">'
+                + '<h5>Dosya Adi:' + data.files[0].name + '</h5>'
+                + '<h5>Dosya Boyutu:' + bytesToSize(data.files[0].size) + '</h5>'
+                + '<h5>Dosya Tipi:' + data.files[0].type + '</h5>'
+                + '<div class="progress">'
+                + '<div  class="bar" style="width:0%">'
+                + '</div></div></div></div></hr>');
+            $('#btnUpload').click(function () {
+                $("#GenelYuzde").removeClass("hidden");
+                data.submit();
+            });
+        },
+
+        //progressInterval ile tetiklenen alan
+        progress: function (e, data) {
+            var yuzde = parseInt((data.loaded / data.total) * 100);
+            $('.bar:eq(' + barIndex + ')').css("width", yuzde + "%");
+            $('.bar:eq(' + barIndex + ')').empty();
+            if (yuzde == 100) {
+                $('.bar:eq(' + barIndex + ')').append("<span>Yükleme Tamamlandı...</span>")
+            }
+            else {
+                $('.bar:eq(' + barIndex + ')').append("<span>Yükleniyor...</span>")
+            }
+        },
+
+        //full veri kümesinin işletildiği alan (progressler kümesi)
+        progressall: function (e, data) {
+            var yuzde = parseInt((data.loaded / data.total) * 100);
+            $("#overBar").css("width", yuzde + "%");
+
+            if (yuzde == 100) {
+                $("#tumYuklemeBilgi").text("Yükleme Tamamlandı...");
+            }
+            else {
+                $("#tumYuklemeBilgi").text("Yükleniyor...");
+            }
+        },
+
+        //tek dosya yükleme işlemi tamamlandığında çalışacak alan.
+        done: function (e, data) {
+            barIndex++;
+        }
+
+
+    });
+
+    function bytesToSize(bytes) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes == 0) return '0 Byte';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return (bytes / Math.pow(1024, i)).toFixed(3) + ' ' + sizes[i];
+    };
+</script>

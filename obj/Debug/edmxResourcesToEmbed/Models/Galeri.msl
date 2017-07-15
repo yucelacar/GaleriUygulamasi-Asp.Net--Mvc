@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="GaleriModelStoreContainer" CdmEntityContainer="GaleriEntities">
+    <EntitySetMapping Name="Dosya">
+      <EntityTypeMapping TypeName="GaleriModel.Dosya">
+        <MappingFragment StoreEntitySet="Dosya">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Deger" ColumnName="Deger" />
+          <ScalarProperty Name="DosyaAdi" ColumnName="DosyaAdi" />
+          <ScalarProperty Name="Baslik" ColumnName="Baslik" />
+          <ScalarProperty Name="Aciklama" ColumnName="Aciklama" />
+          <ScalarProperty Name="DosyaTipi" ColumnName="DosyaTipi" />
+          <ScalarProperty Name="DosyaBoyutu" ColumnName="DosyaBoyutu" />
+          <ScalarProperty Name="BoyutKisaltma" ColumnName="BoyutKisaltma" />
+          <ScalarProperty Name="Ikon" ColumnName="Ikon" />
+          <ScalarProperty Name="Renk" ColumnName="Renk" />
+          <ScalarProperty Name="Resim" ColumnName="Resim" />
+          <ScalarProperty Name="KayitTarihi" ColumnName="KayitTarihi" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
